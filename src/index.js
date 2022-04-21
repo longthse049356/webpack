@@ -1,9 +1,9 @@
-import {add} from './add'
 import moment from "moment";
+import {add} from "./add";
 
-const main = () => {
-    console.log(add(2, 3));
-    console.log(moment().format('LL'))
+function hello(){
+    console.log(moment().format('LL'));
+   console.log( add(1,2));
 }
 
-main();
+hello()
