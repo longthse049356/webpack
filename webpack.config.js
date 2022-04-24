@@ -32,7 +32,8 @@ module.exports = {
         test: /\.css$/i,
         use: [
           MiniCssExtractPlugin.loader,
-          { loader: "css-loader", options: { sourceMap: true } },
+          //  Show xem css đang ở dòng bao nhiêu và có thể import các file css khác nhau
+          { loader: "css-loader", options: { sourceMap: true, import: true } },
         ],
       },
       {
