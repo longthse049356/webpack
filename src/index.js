@@ -1,17 +1,14 @@
-import {add} from "./libs/add";
-import {sayHello} from "./libs/hello";
-import _ from 'lodash';
-import './libs/image';
+import React from "react";
+import ReactDom from "react-dom";
 
-console.log(_.size([1,2,3,4,5]))
-
-function hello(){
-   console.log( add(1,2));
+function App() {
+  return (
+    <div>
+      <h1>Hello</h1>
+      <h1>Hello 2</h1>
+      <h1>Hello 3</h1>
+    </div>
+  );
 }
 
-hello();
-
-sayHello();
-
-const PI = 3.14;
-console.log(`PI is :${PI}`);
+ReactDom.render(<App />, document.getElementById("root"));
