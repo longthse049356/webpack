@@ -21,14 +21,16 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.6.0",
     "moment": "^2.29.3",
+    "node-sass": "^7.0.1",
     "prettier": "2.6.2",
+    "sass-loader": "^12.6.0",
     "style-loader": "^3.3.1",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.8.1"
   },
   "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
   }
 }

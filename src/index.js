@@ -1,14 +1,9 @@
 import React from "react";
 import ReactDom from "react-dom";
+import Header from "./component/Header";
 
 function App() {
-  return (
-    <div>
-      <h1>Hello</h1>
-      <h1>Hello 2</h1>
-      <h1>Hello 3</h1>
-    </div>
-  );
+  return <Header />;
 }
 
 ReactDom.render(<App />, document.getElementById("root"));
