@@ -1,6 +1,8 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserWebpackPlugin = require("terser-webpack-plugin");
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 
 module.exports = function (_env, argv) {
   const isProduction = argv.mode === "production";
@@ -16,7 +18,7 @@ module.exports = function (_env, argv) {
     output: {
       // Tên của file js sau khi đã được bundle
       // filename: "[name].js" dùng để tạo nhiều entry point
-      filename: "[name].js",
+      filename: "asset/js/[name].[contenthash:8].js",
       path: path.resolve(__dirname, "build"),
       clean: true,
     },
@@ -28,7 +30,9 @@ module.exports = function (_env, argv) {
           use: {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env", "@babel/preset-react"],
+              cacheDirectory: true,
+              cacheCompression: false,
+              envName: isProduction ? "production" : "development",
             },
           },
           resolve: {
@@ -37,24 +41,33 @@ module.exports = function (_env, argv) {
         },
         {
           test: /\.s?[ac]ss$/i,
-          use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          use: [
+            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
+            "css-loader",
+          ],
         },
         {
-          test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
-          loader: "file-loader",
+          test: /\.(png|jpg|gif)$/i,
+          use: {
+            loader: "url-loader",
+            options: {
+              limit: 8192,
+              name: "static/media/[name].[hash:8].[ext]",
+            },
+          },
+        },
+        {
+          test: /\.svg$/,
+          use: ["@svgr/webpack"],
+        },
+        {
+          test: /\.(eot|otf|ttf|woff|woff2)$/,
+          loader: require.resolve("file-loader"),
           options: {
-            name: "[path][name].[ext]",
+            name: "static/media/[name].[hash:8].[ext]",
           },
         },
       ],
-    },
-    devServer: {
-      static: {
-        directory: path.join(__dirname, "dist"),
-      },
-      compress: true,
-      port: 9000,
-      open: true,
     },
     // Show lỗi ở file nào chứ không show lỗi trong file bundle nữa
     mode: "development",
@@ -62,15 +75,65 @@ module.exports = function (_env, argv) {
     // watch: true
     plugins: [
       new HtmlWebpackPlugin({
-        title: "Webpack Demo",
-        template: "public/index.html",
+        template: path.resolve(__dirname, "public/index.html"),
+        inject: true,
       }),
-      new MiniCssExtractPlugin(),
-    ],
+      isProduction &&
+        new MiniCssExtractPlugin({
+          filename: "assets/css/[name].[contenthash:8].css",
+          chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
+        }),
+    ].filter(Boolean),
     optimization: {
+      minimize: isProduction,
+      minimizer: [
+        new TerserWebpackPlugin({
+          terserOptions: {
+            compress: {
+              comparisons: false,
+            },
+            mangle: {
+              safari10: true,
+            },
+            output: {
+              comments: false,
+              ascii_only: true,
+            },
+            warnings: false,
+          },
+        }),
+        new OptimizeCssAssetsPlugin(),
+      ],
       splitChunks: {
         chunks: "all",
+        minSize: 0,
+        maxInitialRequests: 20,
+        maxAsyncRequests: 20,
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            name(module, chunks, cacheGroupKey) {
+              const packageName = module.context.match(
+                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+              )[1];
+              return `${cacheGroupKey}.${packageName.replace("@", "")}`;
+            },
+          },
+          common: {
+            minChunks: 2,
+            priority: -10,
+          },
+        },
       },
+      runtimeChunk: "single",
+    },
+    devServer: {
+      static: {
+        directory: path.join(__dirname, "build"),
+      },
+      compress: true,
+      port: 9000,
+      open: true,
     },
   };
 };
