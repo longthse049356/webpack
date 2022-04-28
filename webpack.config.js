@@ -79,10 +79,10 @@ module.exports = function (_env, argv) {
         inject: true,
       }),
       isProduction &&
-        new MiniCssExtractPlugin({
-          filename: "assets/css/[name].[contenthash:8].css",
-          chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
-        }),
+      new MiniCssExtractPlugin({
+        filename: "assets/css/[name].[contenthash:8].css",
+        chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
+      }),
     ].filter(Boolean),
     optimization: {
       minimize: isProduction,
@@ -114,7 +114,7 @@ module.exports = function (_env, argv) {
             test: /[\\/]node_modules[\\/]/,
             name(module, chunks, cacheGroupKey) {
               const packageName = module.context.match(
-                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
               )[1];
               return `${cacheGroupKey}.${packageName.replace("@", "")}`;
             },
