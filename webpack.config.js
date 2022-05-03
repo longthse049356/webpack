@@ -30,6 +30,7 @@ module.exports = function (_env, argv) {
           use: {
             loader: "babel-loader",
             options: {
+              presets: ["@babel/preset-env"],
               cacheDirectory: true,
               cacheCompression: false,
               envName: isProduction ? "production" : "development",
@@ -39,11 +40,40 @@ module.exports = function (_env, argv) {
             extensions: [".js", ".jsx"],
           },
         },
+        // {
+        //   test: /\.css$/,
+        //   use: [
+        //     "style-loader",
+        //     {
+        //       loader: "css-loader",
+        //       options: {
+        //         importLoaders: 1,
+        //         modules: true,
+        //       },
+        //     },
+        //   ],
+        //   include: /\.module\.css$/,
+        // },
+        // {
+        //   test: /\.css$/,
+        //   use: ["style-loader", "css-loader"],
+        //   exclude: /\.module\.css$/,
+        // },
         {
-          test: /\.s?[ac]ss$/i,
+          test: /\.(css|scss)$/,
           use: [
-            isProduction ? MiniCssExtractPlugin.loader : "style-loader",
-            "css-loader",
+            "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                sourceMap: true,
+                modules: {
+                  exportLocalsConvention: "camelCase",
+                  localIdentName: "[local]___[hash:base64:5]",
+                },
+              },
+            },
+            "sass-loader",
           ],
         },
         {
@@ -79,10 +109,11 @@ module.exports = function (_env, argv) {
         inject: true,
       }),
       isProduction &&
-      new MiniCssExtractPlugin({
-        filename: "assets/css/[name].[contenthash:8].css",
-        chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
-      }),
+        new MiniCssExtractPlugin({
+          filename: "assets/css/[name].[contenthash:8].css",
+          chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
+        }),
+      require("postcss-preset-env"),
     ].filter(Boolean),
     optimization: {
       minimize: isProduction,
@@ -114,7 +145,7 @@ module.exports = function (_env, argv) {
             test: /[\\/]node_modules[\\/]/,
             name(module, chunks, cacheGroupKey) {
               const packageName = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                /[\\/]node_modules[\\/](.*?)([\\/]|$)/
               )[1];
               return `${cacheGroupKey}.${packageName.replace("@", "")}`;
             },
@@ -134,6 +165,9 @@ module.exports = function (_env, argv) {
       compress: true,
       port: 9000,
       open: true,
+    },
+    resolve: {
+      extensions: [".js", ".jsx", ".scss"],
     },
   };
 };
